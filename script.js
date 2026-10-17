@@ -20,6 +20,9 @@
   const progressBar = document.querySelector("#progress-bar");
   const progressPercent = document.querySelector("#progress-percent");
   const progressStatus = document.querySelector("#progress-status");
+  const renderPrompt = document.querySelector("#render-prompt");
+  const renderStyle = document.querySelector("#render-style");
+  const renderRatio = document.querySelector("#render-ratio");
   const confettiLayer = document.querySelector("#confetti-layer");
 
   const videos = [
@@ -33,10 +36,11 @@
 
   const progressStages = [
     { at: 0, text: "Анализируем промпт…" },
-    { at: 22, text: "Подбираем визуальную композицию…" },
-    { at: 48, text: "Создаём изображение…" },
-    { at: 73, text: "Улучшаем детали…" },
-    { at: 91, text: "Применяем финальные настройки…" }
+    { at: 18, text: "Подбираем визуальную композицию…" },
+    { at: 39, text: "Создаём базовое изображение…" },
+    { at: 62, text: "Улучшаем детали и освещение…" },
+    { at: 82, text: "Рендерим финальную версию…" },
+    { at: 96, text: "Подготавливаем файл…" }
   ];
 
   let currentIndex = 0;
@@ -74,8 +78,8 @@
     resultTitle.textContent = item.title;
     resultDescription.textContent = item.description;
     videoHintText.textContent = index === 0
-      ? "Первое видео. Для паузы и управления звуком используй контролы плеера."
-      : "Второе видео. Для паузы и управления звуком используй контролы плеера.";
+      ? "Подготавливаем визуальную основу…"
+      : "Применяем последние улучшения…";
     memeImage.hidden = true;
     video.hidden = false;
     video.src = item.src;
@@ -133,17 +137,27 @@
     progressPanel.hidden = true;
 
     resultTitle.textContent = "Изображение успешно сгенерировано";
-    resultDescription.textContent = "Твой результат готов. Спасибо за ожидание!";
-    videoHintText.textContent = "Генерация завершена.";
+    resultDescription.textContent = "Финальный результат готов.";
+    videoHintText.textContent = "Результат готов.";
     replayButton.hidden = false;
+    clearPlaybackError();
 
-    const memePath = memes[Math.floor(Math.random() * memes.length)];
+    // Avoid repeating the same meme twice in a row when possible.
+    let memePath = memes[Math.floor(Math.random() * memes.length)];
+    if (memes.length > 1 && memePath === window.lastMemePath) {
+      const alternatives = memes.filter((path) => path !== window.lastMemePath);
+      memePath = alternatives[Math.floor(Math.random() * alternatives.length)];
+    }
+    window.lastMemePath = memePath;
     memeImage.hidden = false;
     memeImage.alt = "Сгенерированный мем";
-    memeImage.onload = () => launchConfetti();
+    memeImage.onload = () => {
+      clearPlaybackError();
+      launchConfetti();
+    };
     memeImage.onerror = () => {
       memeImage.hidden = true;
-      showPlaybackError("Пока не нашёл файл мема. Добавь картинки в папку mems/ и проверь имена в script.js.");
+      showPlaybackError("Не удалось загрузить мем. Проверь, что файлы 1.jpg–14.jpg находятся в папке mem/.");
     };
     memeImage.src = memePath;
     memeImage.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -177,11 +191,19 @@
     generationStarted = true;
     showPlayer();
     video.pause();
+    video.removeAttribute("src");
+    video.load();
     video.hidden = true;
     memeImage.hidden = true;
+    confettiLayer.hidden = true;
+    confettiLayer.replaceChildren();
+    clearPlaybackError();
     progressPanel.hidden = false;
-    resultTitle.textContent = "Генерируем изображение";
-    resultDescription.textContent = "Это может занять несколько секунд…";
+    resultTitle.textContent = "Создаём твоё изображение";
+    resultDescription.textContent = "Подготавливаем композицию и финальный рендер.";
+    renderPrompt.textContent = prompt.value.trim();
+    renderStyle.textContent = "Стиль: " + document.querySelector("#style").selectedOptions[0].textContent;
+    renderRatio.textContent = "Формат: " + document.querySelector("#ratio").selectedOptions[0].textContent;
     replayButton.hidden = true;
     await runFakeProgress();
     progressPanel.hidden = true;
