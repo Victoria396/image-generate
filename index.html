@@ -73,10 +73,18 @@
           <div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR CREATION</div><h2 id="result-title">Твоя генерация</h2><p id="result-description">Подготовка результата…</p></div>
           <button id="back-button" class="secondary-button" type="button">← К генератору</button>
         </div>
-        <div class="video-frame">
+        <div id="generation-progress" class="generation-progress" hidden>
+          <div class="progress-orb" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="progress-copy"><div id="progress-status">Анализируем промпт…</div><strong id="progress-percent">0%</strong></div>
+          <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+          <p>Пожалуйста, не закрывай страницу, пока создаётся изображение.</p>
+        </div>
+        <div class="video-frame result-media">
           <video id="result-video" controls playsinline preload="none">
             Ваш браузер не поддерживает встроенное видео.
           </video>
+          <img id="meme-image" class="meme-image" alt="Сгенерированный мем" hidden>
+          <div id="confetti-layer" class="confetti-layer" aria-hidden="true" hidden></div>
           <div id="playback-error" class="playback-message" hidden>
             <p id="playback-error-text">Не удалось автоматически запустить видео.</p>
             <button id="continue-button" class="generate-button compact-button" type="button">▶ Продолжить воспроизведение</button>
