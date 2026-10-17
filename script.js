@@ -151,6 +151,7 @@
     videoHintText.textContent = "Результат готов.";
     replayButton.hidden = false;
     sharePanel.hidden = true;
+    nativeShareButton.disabled = true;
     shareFeedback.textContent = "";
     clearPlaybackError();
 
@@ -167,6 +168,7 @@
       clearPlaybackError();
       launchConfetti();
       sharePanel.hidden = false;
+      nativeShareButton.disabled = false;
       // Sound is attempted at the exact moment the final meme appears.
       // Some browsers may block delayed audio playback; the meme still displays.
       victorySound.currentTime = 0;
@@ -270,6 +272,7 @@
     memeImage.removeAttribute("src");
     memeImage.hidden = true;
     sharePanel.hidden = true;
+    nativeShareButton.disabled = true;
     shareFeedback.textContent = "";
     confettiLayer.hidden = true;
     confettiLayer.replaceChildren();
@@ -299,7 +302,7 @@
     try {
       const file = await getMemeFile();
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText + String.fromCharCode(10) + shareUrl });
+        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
       } else {
         await downloadMemeFile(file);
         shareFeedback.textContent = "Картинка скачана. Открой нужный мессенджер, прикрепи файл pixelforge-result.jpg и вставь подготовленный текст.";
