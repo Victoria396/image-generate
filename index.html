@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <meta name="description" content="PixelForge AI — creative image studio.">
+  <title>PixelForge AI — Image Studio</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="PixelForge AI — главная">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.8 14.5 9.5 21.2 12l-6.7 2.5L12 21.2l-2.5-6.7L2.8 12l6.7-2.5L12 2.8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m19 2 .8 2.2L22 5l-2.2.8L19 8l-.8-2.2L16 5l2.2-.8L19 2Z" fill="currentColor"/></svg>
+        </span>
+        <span class="brand-copy"><strong>PixelForge <span>AI</span></strong><small>CREATIVE IMAGE STUDIO</small></span>
+      </a>
+      <div class="topbar-right"><span class="status-dot"></span><span>All systems operational</span><span class="beta-badge">BETA</span></div>
+    </header>
+
+    <main>
+      <section id="generator" class="workspace">
+        <div class="intro">
+          <div class="eyebrow"><span class="eyebrow-line"></span> YOUR IDEAS, REIMAGINED</div>
+          <h1>Преврати идею<br>в <span>изображение.</span></h1>
+          <p class="intro-copy">Опиши, что хочешь создать. Мы позаботимся об остальном.</p>
+        </div>
+
+        <form id="generator-form" class="generator-card">
+          <div class="field-heading"><label for="prompt">Твой промпт</label><span id="prompt-count">0 / 500</span></div>
+          <textarea id="prompt" name="prompt" maxlength="500" placeholder="Например: кинематографичный город будущего на закате, мягкий свет, высокая детализация..." required></textarea>
+          <div class="form-options">
+            <div class="option-field">
+              <label for="style">Стиль изображения</label>
+              <div class="select-wrap">
+                <span class="option-icon" aria-hidden="true">✳</span>
+                <select id="style" name="style">
+                  <option>Фотореализм</option><option>3D Render</option><option>Иллюстрация</option><option>Кинематографичный</option><option>Аниме</option>
+                </select>
+                <span class="select-chevron" aria-hidden="true">⌄</span>
+              </div>
+            </div>
+            <div class="option-field">
+              <label for="ratio">Соотношение сторон</label>
+              <div class="select-wrap">
+                <span class="option-icon ratio-icon" aria-hidden="true">▱</span>
+                <select id="ratio" name="ratio">
+                  <option value="1:1">Квадрат · 1:1</option><option value="16:9" selected>Альбом · 16:9</option><option value="9:16">Портрет · 9:16</option><option value="4:3">Классика · 4:3</option>
+                </select>
+                <span class="select-chevron" aria-hidden="true">⌄</span>
+              </div>
+            </div>
+          </div>
+          <button class="generate-button" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 2.5 2.4 6.8 7.1 2.7-7.1 2.6-2.4 6.9-2.6-6.9-6.8-2.6 6.8-2.7L12 2.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span>Сгенерировать изображение</span><span class="button-arrow" aria-hidden="true">↗</span>
+          </button>
+          <p class="privacy-note"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 6v5c0 4.5-3 7.7-7 10-4-2.3-7-5.5-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.5"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Твои идеи заслуживают воплощения.</p>
+        </form>
+
+        <div class="feature-row">
+          <div class="feature"><span class="feature-icon">✧</span><span><strong>Creative freedom</strong><small>Только твоя фантазия</small></span></div>
+          <div class="feature"><span class="feature-icon">◈</span><span><strong>Studio quality</strong><small>Каждая деталь важна</small></span></div>
+          <div class="feature"><span class="feature-icon">↗</span><span><strong>Ready to create</strong><small>Начни с одной идеи</small></span></div>
+        </div>
+      </section>
+
+      <section id="result" class="result-section" hidden aria-live="polite">
+        <div class="result-heading">
+          <div><div class="eyebrow"><span class="eyebrow-line"></span> YOUR CREATION</div><h2 id="result-title">Твоя генерация</h2><p id="result-description">Подготовка результата…</p></div>
+          <button id="back-button" class="secondary-button" type="button">← К генератору</button>
+        </div>
+        <div class="video-frame">
+          <video id="result-video" controls playsinline preload="none">
+            Ваш браузер не поддерживает встроенное видео.
+          </video>
+          <div id="playback-error" class="playback-message" hidden>
+            <p id="playback-error-text">Не удалось автоматически запустить видео.</p>
+            <button id="continue-button" class="generate-button compact-button" type="button">▶ Продолжить воспроизведение</button>
+          </div>
+        </div>
+        <p class="video-hint"><span class="hint-dot"></span><span id="video-hint-text">Видео воспроизводится в браузере. Используй стандартные элементы управления.</span></p>
+        <button id="replay-button" class="secondary-button replay-button" type="button" hidden>↻ Запустить заново</button>
+      </section>
+    </main>
+    <footer class="footer"><span>© <span id="year"></span> PixelForge AI</span><span>Made for curious minds <span class="footer-sparkle">✳</span></span></footer>
+  </div>
+</body>
+</html>
