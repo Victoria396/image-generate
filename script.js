@@ -24,6 +24,9 @@
   const renderStyle = document.querySelector("#render-style");
   const renderRatio = document.querySelector("#render-ratio");
   const confettiLayer = document.querySelector("#confetti-layer");
+  const victorySound = new Audio("./assets/tada.mp3");
+  victorySound.preload = "auto";
+  victorySound.volume = 0.85;
 
   const videos = [
     { src: "./assets/mem.mp4", title: "Твоя генерация", description: "Готовим результат по твоему запросу…" },
@@ -154,6 +157,12 @@
     memeImage.onload = () => {
       clearPlaybackError();
       launchConfetti();
+      // Sound is attempted at the exact moment the final meme appears.
+      // Some browsers may block delayed audio playback; the meme still displays.
+      victorySound.currentTime = 0;
+      victorySound.play().catch(() => {
+        videoHintText.textContent = "Результат готов. Если звук не прозвучал, проверь настройки звука браузера.";
+      });
     };
     memeImage.onerror = () => {
       memeImage.hidden = true;
