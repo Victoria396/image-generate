@@ -302,18 +302,31 @@
     try {
       const file = await getMemeFile();
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
-      } else if (navigator.share) {
-        await navigator.share({ title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
-        shareFeedback.textContent = "Чтобы отправить именно картинку, скачай её кнопкой ниже и прикрепи к сообщению.";
+        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText + "\\n" + shareUrl });
       } else {
         await downloadMemeFile(file);
-        shareFeedback.textContent = "Картинка скачана. Прикрепи её в Telegram или другом сервисе — текст можно скопировать ниже.";
+        shareFeedback.textContent = "Картинка скачана. Открой нужный мессенджер, прикрепи файл pixelforge-result.jpg и вставь подготовленный текст.";
       }
     } catch (error) {
-      if (error.name !== "AbortError") shareFeedback.textContent = "Не получилось открыть меню отправки. Попробуй скачать картинку.";
+      if (error.name !== "AbortError") shareFeedback.textContent = "Не получилось отправить файл автоматически. Нажми «Скачать картинку», затем прикрепи её к сообщению вручную.";
     }
   });
+
+  async function preparePlatformShare(event, url) {
+    event.preventDefault();
+    const popup = window.open(url, "_blank", "noopener,noreferrer");
+    try {
+      await downloadMemeFile();
+      shareFeedback.textContent = "Картинка скачана отдельно. В открывшемся мессенджере прикрепи файл pixelforge-result.jpg — ссылка сама по себе не прикладывает изображение.";
+    } catch (error) {
+      shareFeedback.textContent = "Не удалось скачать картинку автоматически. Сначала нажми «Скачать картинку», затем отправь её из мессенджера.";
+      if (popup) popup.close();
+    }
+  }
+
+  telegramShare.addEventListener("click", (event) => preparePlatformShare(event, telegramShare.href));
+  whatsappShare.addEventListener("click", (event) => preparePlatformShare(event, whatsappShare.href));
+  vkShare.addEventListener("click", (event) => preparePlatformShare(event, vkShare.href));
 
   async function downloadMemeFile(existingFile) {
     const file = existingFile || await getMemeFile();
