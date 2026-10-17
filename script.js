@@ -29,13 +29,7 @@
 
   // Когда подготовишь мемы, положи их в папку mems/ с такими именами
   // или замени пути ниже на свои реальные имена файлов.
-  const memes = [
-    "./mems/meme1.jpg",
-    "./mems/meme2.jpg",
-    "./mems/meme3.jpg",
-    "./mems/meme4.png",
-    "./mems/meme5.gif"
-  ];
+  const memes = Array.from({ length: 14 }, (_, index) => `./mem/${index + 1}.jpg`);
 
   const progressStages = [
     { at: 0, text: "Анализируем промпт…" },
