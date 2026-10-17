@@ -337,7 +337,7 @@
   });
 
   copyShareTextButton.addEventListener("click", async () => {
-    const textToCopy = shareText + "\\n" + shareUrl;
+    const textToCopy = shareText + "\n" + shareUrl;
     try {
       await navigator.clipboard.writeText(textToCopy);
       shareFeedback.textContent = "Текст для публикации скопирован — осталось вставить его в сообщение.";
