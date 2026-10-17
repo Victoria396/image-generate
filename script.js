@@ -24,6 +24,17 @@
   const renderStyle = document.querySelector("#render-style");
   const renderRatio = document.querySelector("#render-ratio");
   const confettiLayer = document.querySelector("#confetti-layer");
+  const sharePanel = document.querySelector("#share-panel");
+  const nativeShareButton = document.querySelector("#native-share-button");
+  const telegramShare = document.querySelector("#telegram-share");
+  const whatsappShare = document.querySelector("#whatsapp-share");
+  const vkShare = document.querySelector("#vk-share");
+  const downloadImageButton = document.querySelector("#download-image-button");
+  const copyShareTextButton = document.querySelector("#copy-share-text-button");
+  const shareFeedback = document.querySelector("#share-feedback");
+  const shareUrl = "https://victoria396.github.io/image-generate/";
+  const shareText = "Смотри, что получилось! ✨ Я проверила PixelForge AI — он превращает идеи в картинки. Теперь твоя очередь: попробуй создать что-нибудь своё!";
+
   const victorySound = new Audio("./assets/tada.mp3");
   victorySound.preload = "auto";
   victorySound.volume = 0.85;
@@ -143,6 +154,8 @@
     resultDescription.textContent = "Финальный результат готов.";
     videoHintText.textContent = "Результат готов.";
     replayButton.hidden = false;
+    sharePanel.hidden = true;
+    shareFeedback.textContent = "";
     clearPlaybackError();
 
     // Avoid repeating the same meme twice in a row when possible.
@@ -157,6 +170,12 @@
     memeImage.onload = () => {
       clearPlaybackError();
       launchConfetti();
+      sharePanel.hidden = false;
+      const encodedShareText = encodeURIComponent(shareText);
+      const encodedShareUrl = encodeURIComponent(shareUrl);
+      telegramShare.href = "https://t.me/share/url?url=" + encodedShareUrl + "&text=" + encodedShareText;
+      whatsappShare.href = "https://wa.me/?text=" + encodeURIComponent(shareText + "\n" + shareUrl);
+      vkShare.href = "https://vk.com/share.php?url=" + encodedShareUrl + "&title=" + encodeURIComponent("Мой результат в PixelForge AI") + "&comment=" + encodedShareText;
       // Sound is attempted at the exact moment the final meme appears.
       // Some browsers may block delayed audio playback; the meme still displays.
       victorySound.currentTime = 0;
@@ -254,6 +273,8 @@
     video.load();
     memeImage.removeAttribute("src");
     memeImage.hidden = true;
+    sharePanel.hidden = true;
+    shareFeedback.textContent = "";
     confettiLayer.hidden = true;
     confettiLayer.replaceChildren();
     if (progressTimer) window.clearInterval(progressTimer);
@@ -266,6 +287,63 @@
     generator.hidden = false;
     prompt.focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+
+  async function getMemeFile() {
+    const response = await fetch(memeImage.src);
+    if (!response.ok) throw new Error("Не удалось загрузить картинку.");
+    const blob = await response.blob();
+    const extension = blob.type.includes("png") ? "png" : "jpg";
+    return new File([blob], "pixelforge-result." + extension, { type: blob.type || "image/jpeg" });
+  }
+
+  nativeShareButton.addEventListener("click", async () => {
+    try {
+      const file = await getMemeFile();
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
+      } else if (navigator.share) {
+        await navigator.share({ title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
+        shareFeedback.textContent = "Чтобы отправить именно картинку, скачай её кнопкой ниже и прикрепи к сообщению.";
+      } else {
+        await downloadMemeFile(file);
+        shareFeedback.textContent = "Картинка скачана. Прикрепи её в Telegram или другом сервисе — текст можно скопировать ниже.";
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") shareFeedback.textContent = "Не получилось открыть меню отправки. Попробуй скачать картинку.";
+    }
+  });
+
+  async function downloadMemeFile(existingFile) {
+    const file = existingFile || await getMemeFile();
+    const objectUrl = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  }
+
+  downloadImageButton.addEventListener("click", async () => {
+    try {
+      await downloadMemeFile();
+      shareFeedback.textContent = "Картинка скачана. Теперь её можно прикрепить к сообщению.";
+    } catch (error) {
+      shareFeedback.textContent = "Не удалось скачать картинку. Попробуй нажать на неё правой кнопкой мыши и выбрать «Сохранить изображение как…».";
+    }
+  });
+
+  copyShareTextButton.addEventListener("click", async () => {
+    const textToCopy = shareText + "\\n" + shareUrl;
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      shareFeedback.textContent = "Текст для публикации скопирован — осталось вставить его в сообщение.";
+    } catch (error) {
+      shareFeedback.textContent = textToCopy;
+    }
   });
 
   replayButton.addEventListener("click", () => {
