@@ -204,8 +204,7 @@
     }, 4200);
   }
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  async function startGeneration() {
     if (generationStarted) return;
     generationStarted = true;
     showPlayer();
@@ -230,6 +229,11 @@
     isPlayingSequence = true;
     setVideo(0);
     await playCurrentVideo();
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await startGeneration();
   });
 
   video.addEventListener("ended", async () => {
@@ -317,8 +321,8 @@
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   }
 
-  replayButton.addEventListener("click", () => {
+  replayButton.addEventListener("click", async () => {
     generationStarted = false;
-    form.requestSubmit();
+    await startGeneration();
   });
 })();
