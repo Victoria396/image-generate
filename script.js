@@ -298,17 +298,38 @@
     return new File([blob], "pixelforge-result." + extension, { type: blob.type || "image/jpeg" });
   }
 
+  async function shareResult() {
+    const file = await getMemeFile();
+
+    if (typeof navigator.share === "function"
+      && typeof navigator.canShare === "function"
+      && navigator.canShare({ files: [file] })) {
+      // Keep the URL in text when sharing files: some mobile share targets
+      // ignore or reject a separate "url" field when files are present.
+      await navigator.share({
+        files: [file],
+        title: "Мой результат в PixelForge AI",
+        text: shareText + String.fromCharCode(10) + shareUrl
+      });
+      shareFeedback.textContent = "Выбери приложение и отправь картинку вместе с текстом и ссылкой.";
+      return;
+    }
+
+    await downloadMemeFile(file);
+    shareFeedback.textContent = "Этот браузер не поддерживает отправку файла напрямую. Картинка скачана — прикрепи её к сообщению вручную и добавь текст со ссылкой: " + shareUrl;
+  }
+
   nativeShareButton.addEventListener("click", async () => {
+    nativeShareButton.disabled = true;
+    shareFeedback.textContent = "Готовим картинку к отправке…";
     try {
-      const file = await getMemeFile();
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText, url: shareUrl });
-      } else {
-        await downloadMemeFile(file);
-        shareFeedback.textContent = "Картинка скачана. Открой нужный мессенджер, прикрепи файл pixelforge-result.jpg и вставь подготовленный текст.";
-      }
+      await shareResult();
     } catch (error) {
-      if (error.name !== "AbortError") shareFeedback.textContent = "Не получилось отправить файл автоматически. Нажми «Скачать картинку», затем прикрепи её к сообщению вручную.";
+      if (error.name !== "AbortError") {
+        shareFeedback.textContent = "Не удалось отправить картинку. Проверь подключение к интернету и попробуй ещё раз.";
+      }
+    } finally {
+      nativeShareButton.disabled = false;
     }
   });
 
