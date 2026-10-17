@@ -299,7 +299,7 @@
     try {
       const file = await getMemeFile();
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText + "\\n" + shareUrl });
+        await navigator.share({ files: [file], title: "Мой результат в PixelForge AI", text: shareText + String.fromCharCode(10) + shareUrl });
       } else {
         await downloadMemeFile(file);
         shareFeedback.textContent = "Картинка скачана. Открой нужный мессенджер, прикрепи файл pixelforge-result.jpg и вставь подготовленный текст.";
